@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIGI-SEJAHTERA | Edu-Fintech Platform Prototype</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for Professional Growth Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#15345B',
+                            900: '#0F2643',
+                            700: '#1E4878',
+                            50: '#F0F4F8'
+                        },
+                        emerald: {
+                            DEFAULT: '#16866A',
+                            hover: '#126E57',
+                            light: '#E8F5F1'
+                        },
+                        gold: {
+                            DEFAULT: '#E5B85C',
+                            dark: '#C89A3C',
+                            light: '#FEF8EC'
+                        },
+                        ivory: '#F7F8FA'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+        /* Hexagon Node Pulse Effect */
+        .hex-node {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hex-node:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0px 8px 16px rgba(22, 134, 106, 0.25));
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+        }
+        .page-view { animation: pageFadeIn 180ms ease-out; }
+        @keyframes pageFadeIn { from { opacity: 0.65; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+        @media (prefers-reduced-motion: reduce) { .page-view { animation: none; } }
+        @media (max-width: 1100px) {
+            .app-sidebar { width: 5rem; }
+            .sidebar-brand-copy, .sidebar-label, .sidebar-footer-copy, .sidebar-node-id { display: none; }
+            .sidebar-brand { justify-content: center; padding-left: 1rem; padding-right: 1rem; }
+            .nav-btn { justify-content: center; padding-left: 0.75rem; padding-right: 0.75rem; }
+            .sidebar-footer-card { justify-content: center; }
+        }
+        @media (max-width: 767px) {
+            .app-sidebar { width: 4rem; }
+            .app-header { padding-left: 1rem; padding-right: 1rem; gap: 0.75rem; }
+            .header-search { min-width: 0; }
+            .header-controls { gap: 0.25rem; }
+            .header-divider, .help-control { display: none; }
+            .dashboard-main { padding: 1rem; }
+        }
+    </style>
+</head>
+<body class="bg-ivory text-slate-800 font-sans h-screen flex overflow-hidden antialiased">
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 ease-in-out bg-navy-800 text-white px-5 py-3 rounded-xl shadow-2xl border border-navy-700 flex items-center gap-3">
+        <svg class="w-5 h-5 text-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span id="toast-message" class="text-sm font-medium">Notifikasi Sistem</span>
+    </div>
+
+    <!-- 1. LEFT SIDEBAR NAVIGATION -->
+    <aside class="app-sidebar w-64 bg-navy-800 text-white flex flex-col justify-between flex-shrink-0 z-30 shadow-2xl relative transition-[width] duration-200">
+        <div>
+            <!-- Brand Logo Header -->
+            <div class="sidebar-brand p-5 border-b border-navy-700/60 flex items-center gap-3">
+                <div class="w-12 h-12 p-1.5 bg-white rounded-xl shadow-lg border border-white/20 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    <img src="./assets/digi-sejahtera-logo.png" alt="Logo DIGI-SEJAHTERA" class="w-full h-full object-contain">
+                </div>
+                <div class="sidebar-brand-copy min-w-0">
+                    <h1 class="font-bold text-base tracking-wide text-white leading-tight">DIGI-SEJAHTERA</h1>
+                    <p class="text-[10px] text-slate-300 font-medium tracking-wider uppercase">Edu-Fintech Platform</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="p-3 space-y-1 text-sm font-medium">
+                <button data-nav="Dashboard" onclick="setActiveNav(this, 'Dashboard')" class="nav-btn active w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-white bg-navy-700 border-l-4 border-emerald shadow-sm transition-all">
+                    <svg class="w-5 h-5 text-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span class="sidebar-label">Dashboard</span>
+                </button>
+
+                <button data-nav="Dompet Digital" onclick="setActiveNav(this, 'Dompet Digital')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-navy-700/50 transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <span class="sidebar-label">Dompet Digital</span>
+                </button>
+
+                <button data-nav="Kebutuhan Hidup Digital" onclick="setActiveNav(this, 'Kebutuhan Hidup Digital')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-navy-700/50 transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M81 12a9 9 0 11-18 0 9 9 0 0118 0zM12 14l9-5-9-5-9 5 9 5zM12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+                    <span class="sidebar-label">KHD (Dukungan Digital)</span>
+                </button>
+
+                <button data-nav="Digi-Incentive" onclick="setActiveNav(this, 'Digi-Incentive')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-navy-700/50 transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="sidebar-label">Digi-Incentive</span>
+                </button>
+
+                <button data-nav="Portofolio Digital" onclick="setActiveNav(this, 'Portofolio Digital')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-navy-700/50 transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span class="sidebar-label">Portofolio Digital</span>
+                </button>
+
+                <button data-nav="Literasi Digital" onclick="setActiveNav(this, 'Literasi Digital')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-navy-700/50 transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    <span class="sidebar-label">Literasi Digital</span>
+                </button>
+
+                <button data-nav="Riwayat Transaksi" onclick="setActiveNav(this, 'Riwayat Transaksi')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-navy-700/50 transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="sidebar-label">Riwayat Transaksi</span>
+                </button>
+
+                <button data-nav="Pengaturan" onclick="setActiveNav(this, 'Pengaturan')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-navy-700/50 transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span class="sidebar-label">Pengaturan</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Sidebar Footer Status Card -->
+        <div class="p-4 border-t border-navy-700/60">
+            <div class="sidebar-footer-card bg-navy-900/80 p-3 rounded-xl border border-navy-700 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald animate-pulse"></span>
+                    <div class="sidebar-footer-copy">
+                        <p class="text-xs font-semibold text-white">Node Verifikasi</p>
+                        <p class="text-[10px] text-slate-400">Aktif • Core System</p>
+                    </div>
+                </div>
+                <span class="sidebar-node-id text-[10px] bg-emerald/20 text-emerald px-1.5 py-0.5 rounded font-mono font-bold">#4829</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-1 flex flex-col h-screen overflow-y-auto min-w-0">
+        
+        <!-- 2. TOP NAVIGATION BAR -->
+        <header class="app-header bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-20 px-6 py-3.5 flex items-center justify-between gap-4 shadow-sm">
+            <!-- Search Input -->
+            <div class="header-search relative flex-1 max-w-80 min-w-32">
+                <input type="text" placeholder="Cari modul, riwayat, atau dokumen..." class="w-full bg-slate-100/80 text-xs text-slate-700 pl-9 pr-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-navy-800/20 focus:bg-white transition-all">
+                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+
+            <!-- Top Header Right Controls -->
+            <div class="header-controls flex flex-shrink-0 items-center gap-3 lg:gap-4">
+                <!-- Notification Bell Button -->
+                <button onclick="showToast('2 Notifikasi Baru: Insentif Okto dikreditkan.')" class="relative p-2 text-slate-500 hover:text-navy-800 hover:bg-slate-100 rounded-xl transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald rounded-full ring-2 ring-white"></span>
+                </button>
+
+                <!-- Help Icon Button -->
+                <button onclick="showToast('Pusat Bantuan DIGI-SEJAHTERA Siap Membantu.')" class="help-control p-2 text-slate-500 hover:text-navy-800 hover:bg-slate-100 rounded-xl transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </button>
+
+                <div class="header-divider h-6 w-px bg-slate-200"></div>
+
+                <!-- User Profile Section -->
+                <div class="flex items-center gap-3 pl-1 cursor-pointer" onclick="showToast('Profil: Ibu Sari Wulandari (NPTK Verified)')">
+                    <div class="relative">
+                        <img src="./assets/ibu-sari-wulandari.png" alt="Ibu Sari Wulandari" class="w-10 h-10 rounded-xl object-cover object-center ring-2 ring-emerald/30 shadow-sm">
+                        <span class="absolute -bottom-1 -right-1 bg-emerald text-white p-0.5 rounded-full ring-2 ring-white">
+                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        </span>
+                    </div>
+                    <div class="text-left hidden lg:block min-w-0">
+                        <div class="flex items-center gap-1.5 whitespace-nowrap">
+                            <span class="font-bold text-xs text-navy-800 whitespace-nowrap">Ibu Sari Wulandari</span>
+                            <span class="hidden xl:inline-flex bg-navy-800/10 text-navy-800 text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap">Guru Non-ASN</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-medium whitespace-nowrap">SMP Negeri 2 Merdeka</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD CONTAINER -->
+        <main class="dashboard-main p-6 space-y-6 max-w-[1440px] mx-auto w-full min-w-0">
+            <div id="page-Dashboard" class="page-view space-y-6">
+
+            <!-- 3. WELCOME BANNER CARD -->
+            <section class="relative bg-gradient-to-r from-navy-800 via-navy-900 to-slate-900 rounded-2xl p-6 text-white shadow-xl overflow-hidden border border-navy-700">
+                <!-- Abstract Vector Background Graphics -->
+                <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none flex items-center justify-end pr-8">
+                    <svg class="w-full h-full text-emerald" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="4" stroke-dasharray="8 8" />
+                        <path d="M50 100 L150 100 M100 50 L100 150" stroke="currentColor" stroke-width="3" />
+                        <circle cx="100" cy="100" r="25" fill="currentColor" />
+                        <circle cx="50" cy="100" r="10" fill="#E5B85C" />
+                        <circle cx="150" cy="100" r="10" fill="#E5B85C" />
+                        <circle cx="100" cy="50" r="10" fill="#E5B85C" />
+                    </svg>
+                </div>
+
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1.5">
+                        <div class="inline-flex items-center gap-2 bg-emerald/20 border border-emerald/40 px-3 py-1 rounded-full text-xs font-semibold text-emerald-light">
+                            <span class="w-2 h-2 rounded-full bg-emerald"></span>
+                            Akun Terverifikasi • NPTK Non-ASN Active
+                        </div>
+                        <h2 class="text-2xl font-extrabold tracking-tight text-white">Selamat Datang, Ibu Sari Wulandari!</h2>
+                        <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                            Bersama DIGI-SEJAHTERA, wujudkan kesejahteraan finansial, akses fasilitas digital berkelanjutan, dan transformasi kapabilitas pengajaran profesional Anda.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="openModal('incentiveModal')" class="bg-emerald hover:bg-emerald-hover text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald/20 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span>Klaim Insentif Kinerja</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. FINANCIAL OVERVIEW CARDS (3 GRID COLUMNS) -->
+            <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                
+                <!-- Card 1: Saldo Dukungan KHD -->
+                <div class="min-w-0 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Saldo Dukungan KHD</span>
+                        <span class="bg-emerald-light text-emerald text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            +12% MoM
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-1.5 mb-1">
+                        <span class="text-2xl 2xl:text-3xl font-extrabold text-navy-800 tracking-tight whitespace-nowrap">Rp750.000</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mb-3">Alokasi Kuota, Perangkat & Software Belajar</p>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-2">
+                        <div class="bg-emerald h-full rounded-full" style="width: 75%"></div>
+                    </div>
+                    <div class="flex flex-wrap justify-between items-center gap-1 text-[10px] text-slate-400">
+                        <span>Terpakai: Rp562.500</span>
+                        <span class="font-semibold text-navy-800">*Data Prototipe Ilustratif</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Insentif Terkumpul -->
+                <div class="min-w-0 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Insentif Terkumpul</span>
+                        <span class="bg-gold-light text-gold-dark text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <svg class="w-3 h-3 text-gold-dark" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            Tier: Guru Inovatif
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-1.5 mb-1">
+                        <span class="text-2xl 2xl:text-3xl font-extrabold text-navy-800 tracking-tight whitespace-nowrap">Rp350.000</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mb-3">Poin Kinerja & Evaluasi Pembelajaran Digital</p>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-2">
+                        <div class="bg-gold h-full rounded-full" style="width: 88%"></div>
+                    </div>
+                    <div class="flex flex-wrap justify-between items-center gap-1 text-[10px] text-slate-400">
+                        <span>Pencapaian: 88/100 Poin</span>
+                        <span class="font-semibold text-navy-800">*Data Prototipe Ilustratif</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Total Dukungan Bulan Ini -->
+                <div class="min-w-0 bg-navy-800 text-white p-5 rounded-2xl shadow-md transition-all relative overflow-hidden group">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Total Dukungan Bulan Ini</span>
+                        <span class="bg-white/10 text-white text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-white/20">
+                            Oktober 2026
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-1.5 mb-1">
+                        <span class="text-2xl 2xl:text-3xl font-extrabold text-white tracking-tight whitespace-nowrap">Rp1.100.000</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 mb-4">Akumulasi KHD + Insentif Edukator</p>
+                    
+                    <div class="pt-2 border-t border-navy-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <span class="text-slate-300 text-[11px]">Status Pencairan:</span>
+                        <span class="text-emerald-light font-bold flex items-center gap-1 text-[11px]">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Tersalurkan Lengkap
+                        </span>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- 5. TWO CORE FEATURE MODULES -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- MODULE A: HYGIENE LAYER (Dukungan Kebutuhan Digital) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative">
+                    <div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-emerald/10 text-emerald rounded-2xl">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-emerald uppercase tracking-wider bg-emerald-light px-2 py-0.5 rounded">Hygiene Layer</span>
+                                    <h3 class="text-base font-bold text-navy-800 mt-0.5">Dukungan Kebutuhan Digital (KHD)</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+                            Kelola alokasi dukungan untuk kuota internet tinggi, perangkat pembelajaran modern, dan akses berlangganan sumber belajar digital secara transparan.
+                        </p>
+
+                        <!-- Usage Breakdown Cards -->
+                        <div class="grid grid-cols-3 gap-2.5 mb-5">
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 text-center">
+                                <p class="text-[10px] text-slate-500 font-medium">Kuota Internet</p>
+                                <p class="text-xs font-bold text-navy-800 mt-0.5">150 GB / Bln</p>
+                                <span class="text-[9px] text-emerald font-semibold">Aktif</span>
+                            </div>
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 text-center">
+                                <p class="text-[10px] text-slate-500 font-medium">Modul Ajar</p>
+                                <p class="text-xs font-bold text-navy-800 mt-0.5">Akses Pro</p>
+                                <span class="text-[9px] text-emerald font-semibold">Aktif</span>
+                            </div>
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60 text-center">
+                                <p class="text-[10px] text-slate-500 font-medium">Subsidi Perangkat</p>
+                                <p class="text-xs font-bold text-navy-800 mt-0.5">Voucher Hardware</p>
+                                <span class="text-[9px] text-gold-dark font-semibold">Siap Klaim</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-medium">Kuota Terpakai: 75% dari Rp750.000</span>
+                        <button onclick="openModal('dompetModal')" class="bg-navy-800 hover:bg-navy-900 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
+                            <span>Lihat Dompet</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- MODULE B: MOTIVATOR LAYER (Digi-Incentive) -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between relative">
+                    <div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="p-3 bg-gold/15 text-gold-dark rounded-2xl">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-gold-dark uppercase tracking-wider bg-gold-light px-2 py-0.5 rounded">Motivator Layer</span>
+                                    <h3 class="text-base font-bold text-navy-800 mt-0.5">Digi-Incentive Profesional</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-600 mb-5 leading-relaxed">
+                            Pantau kemajuan portofolio mengajar, evaluasi kinerja saintifik, dan raih perkembangan bonus insentif berdasarkan rekaman aktivitas belajar mengajar nyata.
+                        </p>
+
+                        <!-- Performance Metrics -->
+                        <div class="space-y-3 mb-5">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-medium text-slate-700">Skor Evaluasi Pedagogik & Inovasi</span>
+                                    <span class="font-bold text-navy-800">88 / 100</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-emerald to-gold h-full rounded-full" style="width: 88%"></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-[11px] text-slate-500 pt-1">
+                                <span>Tingkat Kinerja: <strong class="text-navy-800">Guru Inovatif Tier 2</strong></span>
+                                <span class="text-emerald font-semibold">+12 Poin menuju Tier Maestro</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500 font-medium">Insentif Siap Dicairkan: Rp350.000</span>
+                        <button onclick="openModal('incentiveModal')" class="bg-emerald hover:bg-emerald-hover text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
+                            <span>Lihat Perkembangan</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- 6. DIGITAL PORTFOLIO & PROFESSIONAL GROWTH SECTION -->
+            <section class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 mb-6 border-b border-slate-100 gap-2">
+                    <div>
+                        <h3 class="text-base font-bold text-navy-800">Perkembangan Profesional & Portofolio</h3>
+                        <p class="text-xs text-slate-500">Trajektori peningkatan kapabilitas mengajar dan status validasi asesor 6 bulan terakhir</p>
+                    </div>
+                    <span class="text-[11px] text-slate-400 bg-slate-100 px-3 py-1 rounded-full font-mono">Nilai prototipe untuk ilustrasi evaluasi kinerja</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    
+                    <!-- 3 Compact Stat Cards Stacked -->
+                    <div class="lg:col-span-4 space-y-3">
+                        <div class="p-3.5 rounded-xl border border-slate-200/70 bg-slate-50/70 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-navy-800/10 text-navy-800 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] text-slate-500 font-medium">Portofolio Digital</p>
+                                    <p class="text-sm font-bold text-navy-800">8 Dokumen Terunggah</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-semibold text-emerald bg-emerald-light px-2 py-0.5 rounded">Terverifikasi</span>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl border border-slate-200/70 bg-slate-50/70 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-emerald/10 text-emerald rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] text-slate-500 font-medium">Pelatihan Digital</p>
+                                    <p class="text-sm font-bold text-navy-800">4 Modul Selesai</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-semibold text-emerald bg-emerald-light px-2 py-0.5 rounded">100% Lulus</span>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/50 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-amber-500/10 text-amber-600 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] text-amber-800 font-medium">Status Evaluasi</p>
+                                    <p class="text-xs font-bold text-amber-900">Menunggu Validasi Asesor</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">Proses</span>
+                        </div>
+                    </div>
+
+                    <!-- 6-Month Growth Interactive Line Chart -->
+                    <div class="lg:col-span-8 h-56 relative">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 7. TRANSPARENCY & SECURITY PANEL + 8. HEXAHELIX COLLABORATION -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- TRANSPARENCY & SECURITY PANEL (7 Cols) -->
+                <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="p-2 bg-navy-800 text-white rounded-xl">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-bold text-navy-800">Transparansi Dana & Audit Ledger</h3>
+                                    <p class="text-xs text-slate-500">Pencatatan distribusi dana terenkripsi & auditable</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] bg-emerald-light text-emerald font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald animate-ping"></span>
+                                Node Verified
+                            </span>
+                        </div>
+
+                        <!-- Activity Log List -->
+                        <div class="space-y-2.5 mb-4">
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-1.5 bg-emerald/10 text-emerald rounded-lg">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-navy-800">Penyaluran Subsisi Kuota Internet 150GB</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">TRX-2026-0928 • 24 Okt 2026, 09:15 WIB</p>
+                                    </div>
+                                </div>
+                                <span class="font-bold text-emerald">+Rp150.000</span>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-1.5 bg-gold/20 text-gold-dark rounded-lg">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-navy-800">Insentif Evaluasi Pembelajaran Okto</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">TRX-2026-0881 • 18 Okt 2026, 14:30 WIB</p>
+                                    </div>
+                                </div>
+                                <span class="font-bold text-gold-dark">+Rp350.000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-navy-50 rounded-xl border border-navy-800/10 flex items-center gap-3 text-[11px] text-navy-800">
+                        <svg class="w-5 h-5 text-navy-800 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span><strong>Catatan Akuntabilitas:</strong> Pencatatan transaksi dapat diaudit sesuai kewenangan resmi dan Kebijakan Perlindungan Data Pribadi (PDP).</span>
+                    </div>
+                </div>
+
+                <!-- HEXAHELIX COLLABORATION GOVERNANCE MODULE (5 Cols) -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="mb-3">
+                            <h3 class="text-base font-bold text-navy-800">Tata Kelola Hexahelix</h3>
+                            <p class="text-xs text-slate-500">Ekosistem kolaborasi 6 pemangku kepentingan</p>
+                        </div>
+
+                        <!-- Refined Interactive Hexagonal Diagram -->
+                        <div class="relative w-full h-52 flex items-center justify-center my-1">
+                            <svg class="w-full h-full max-w-[320px]" viewBox="0 0 300 260">
+                                <!-- Connection Lines to Central Hub -->
+                                <line x1="150" y1="130" x2="150" y2="35" stroke="#16866A" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="150" y1="130" x2="235" y2="80" stroke="#15345B" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="150" y1="130" x2="235" y2="180" stroke="#E5B85C" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="150" y1="130" x2="150" y2="225" stroke="#16866A" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="150" y1="130" x2="65" y2="180" stroke="#15345B" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="150" y1="130" x2="65" y2="80" stroke="#E5B85C" stroke-width="2" stroke-dasharray="4" />
+
+                                <!-- Center Node: DIGI-SEJAHTERA -->
+                                <circle cx="150" cy="130" r="28" fill="#15345B" class="shadow-lg"/>
+                                <text x="150" y="126" text-anchor="middle" fill="#FFFFFF" font-size="9" font-weight="bold">DIGI</text>
+                                <text x="150" y="137" text-anchor="middle" fill="#E5B85C" font-size="8" font-weight="semibold">HUB</text>
+
+                                <!-- 6 Outer Stakeholder Hexagon Nodes -->
+                                <!-- 1. Pemerintah -->
+                                <g class="hex-node cursor-pointer" onclick="updateHexaInfo('Pemerintah', 'Regulasi, Subsidi APBN/APBD & Validasi NPTK Guru Non-ASN.')">
+                                    <polygon points="150,9 184,22 184,48 150,61 116,48 116,22" fill="#16866A" />
+                                    <text x="150" y="35" text-anchor="middle" dominant-baseline="middle" fill="#FFF" font-family="Inter, sans-serif" font-size="9.5" font-weight="bold">PEMERINTAH</text>
+                                </g>
+
+                                <!-- 2. Akademisi -->
+                                <g class="hex-node cursor-pointer" onclick="updateHexaInfo('Akademisi', 'Penyusunan kurikulum pelatihan digital & riset evaluasi dampak.')">
+                                    <polygon points="235,54 269,67 269,93 235,106 201,93 201,67" fill="#15345B" />
+                                    <text x="235" y="80" text-anchor="middle" dominant-baseline="middle" fill="#FFF" font-family="Inter, sans-serif" font-size="10" font-weight="bold">AKADEMISI</text>
+                                </g>
+
+                                <!-- 3. Dunia Usaha / CSR -->
+                                <g class="hex-node cursor-pointer" onclick="updateHexaInfo('Dunia Usaha / CSR', 'Dukungan dana hibah, ketersediaan perangkat & lisensi software.')">
+                                    <polygon points="235,154 269,167 269,193 235,206 201,193 201,167" fill="#E5B85C" />
+                                    <text x="235" y="180" text-anchor="middle" fill="#15345B" font-family="Inter, sans-serif" font-size="10" font-weight="bold"><tspan x="235" dy="-0.45em">DUNIA</tspan><tspan x="235" dy="1.1em">USAHA</tspan></text>
+                                </g>
+
+                                <!-- 4. Masyarakat -->
+                                <g class="hex-node cursor-pointer" onclick="updateHexaInfo('Masyarakat & Komunitas', 'Pengawasan komunitas guru, PGRI, dan partisipasi publik.')">
+                                    <polygon points="150,199 184,212 184,238 150,251 116,238 116,212" fill="#16866A" />
+                                    <text x="150" y="225" text-anchor="middle" dominant-baseline="middle" fill="#FFF" font-family="Inter, sans-serif" font-size="9.5" font-weight="bold">MASYARAKAT</text>
+                                </g>
+
+                                <!-- 5. Media -->
+                                <g class="hex-node cursor-pointer" onclick="updateHexaInfo('Media Publikasi', 'Edukasi literasi publik dan publikasi keberhasilan transformasi.')">
+                                    <polygon points="65,154 99,167 99,193 65,206 31,193 31,167" fill="#15345B" />
+                                    <text x="65" y="180" text-anchor="middle" dominant-baseline="middle" fill="#FFF" font-family="Inter, sans-serif" font-size="11" font-weight="bold">MEDIA</text>
+                                </g>
+
+                                <!-- 6. Lembaga Keuangan -->
+                                <g class="hex-node cursor-pointer" onclick="updateHexaInfo('Lembaga Keuangan', 'Penyaluran saldo aman terdaftar OJK & fasilitas dompet digital.')">
+                                    <polygon points="65,54 99,67 99,93 65,106 31,93 31,67" fill="#E5B85C" />
+                                    <text x="65" y="80" text-anchor="middle" dominant-baseline="middle" fill="#15345B" font-family="Inter, sans-serif" font-size="10" font-weight="bold">KEUANGAN</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Node Detail Box -->
+                    <div id="hexa-detail-box" class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-xs">
+                        <p id="hexa-title" class="font-bold text-navy-800">Klik Node Hexahelix di Atas</p>
+                        <p id="hexa-desc" class="text-slate-500 text-[11px] mt-0.5">Pilih salah satu aktor untuk melihat perannya dalam mendukung kesejahteraan pendidik Non-ASN.</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- 9. WEEKLY TIP ALERT & FOOTER -->
+            <section class="space-y-4">
+                
+                <!-- Weekly Tip Banner -->
+                <div class="bg-gradient-to-r from-emerald-light via-teal-50 to-emerald-light p-4 rounded-2xl border border-emerald/20 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-emerald text-white rounded-xl flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-navy-800">Tips Minggu Ini: Tingkatkan Skor Portofolio Digital</p>
+                            <p class="text-[11px] text-slate-600">Selesaikan Modul Pembelajaran Interaktif 4 untuk membuka insentif performa tambahan sebesar Rp100.000.</p>
+                        </div>
+                    </div>
+                    <button onclick="setActiveNav(null, 'Literasi Digital')" class="text-xs font-semibold text-emerald hover:text-emerald-hover underline whitespace-nowrap">Pelajari Modul &rarr;</button>
+                </div>
+
+                <!-- Footer -->
+                <footer class="pt-2 pb-6 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-navy-800">DIGI-SEJAHTERA</span>
+                        <span>|</span>
+                        <span>Teknologi untuk Pendidikan yang Lebih Sejahtera</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span>Simulasi Prototipe v2.4</span>
+                        <span>•</span>
+                        <span>Akademik & Inovasi Edu-Fintech Indonesia</span>
+                    </div>
+                </footer>
+
+            </section>
+
+            </div><!-- /page-Dashboard -->
+
+            <!-- PAGE: DOMPET DIGITAL -->
+            <div id="page-Dompet-Digital" class="page-view hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+                    <div><p class="text-xs uppercase tracking-wider font-bold text-emerald mb-1">Keuangan Pendidik</p><h2 class="text-2xl font-extrabold text-navy-800">Dompet Digital</h2><p class="text-sm text-slate-500 mt-1">Pantau saldo dukungan, alokasi, dan transaksi DIGI-SEJAHTERA.</p></div>
+                    <button onclick="openModal('dompetModal')" class="bg-emerald hover:bg-emerald-hover text-white text-sm font-semibold px-4 py-2.5 rounded-xl">Lihat Rincian Saldo</button>
+                </div>
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs text-slate-500 font-semibold uppercase">Saldo KHD</p><p class="text-3xl font-extrabold text-navy-800 mt-3">Rp750.000</p><p class="text-xs text-slate-500 mt-2">Saldo dukungan digital bulan ini</p></div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs text-slate-500 font-semibold uppercase">Telah Digunakan</p><p class="text-3xl font-extrabold text-emerald mt-3">Rp562.500</p><p class="text-xs text-slate-500 mt-2">75% dari alokasi KHD</p></div>
+                    <div class="bg-navy-800 text-white p-5 rounded-2xl shadow-sm"><p class="text-xs text-slate-300 font-semibold uppercase">Sisa Alokasi</p><p class="text-3xl font-extrabold mt-3">Rp187.500</p><p class="text-xs text-slate-300 mt-2">Dapat digunakan sesuai ketentuan program</p></div>
+                </section>
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5"><div><h3 class="font-bold text-navy-800">Rincian Alokasi KHD</h3><p class="text-xs text-slate-500 mt-1">Data prototipe ilustratif</p></div><button onclick="showToast('Permintaan rincian saldo berhasil disiapkan.')" class="text-sm text-emerald font-semibold underline">Unduh ringkasan</button></div>
+                    <div class="space-y-4">
+                        <div><div class="flex justify-between text-sm mb-1"><span>Paket kuota internet</span><strong>Rp300.000</strong></div><div class="w-full bg-slate-100 h-2 rounded-full"><div class="bg-emerald h-2 rounded-full" style="width:70%"></div></div></div>
+                        <div><div class="flex justify-between text-sm mb-1"><span>Lisensi software dan sumber belajar</span><strong>Rp250.000</strong></div><div class="w-full bg-slate-100 h-2 rounded-full"><div class="bg-emerald h-2 rounded-full" style="width:85%"></div></div></div>
+                        <div><div class="flex justify-between text-sm mb-1"><span>Subsidi perangkat pembelajaran</span><strong>Rp200.000</strong></div><div class="w-full bg-slate-100 h-2 rounded-full"><div class="bg-gold h-2 rounded-full" style="width:35%"></div></div></div>
+                    </div>
+                </section>
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><h3 class="font-bold text-navy-800 mb-4">Transaksi Terbaru</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="text-xs uppercase text-slate-500 bg-slate-50"><tr><th class="p-3">Tanggal</th><th class="p-3">Keterangan</th><th class="p-3">Status</th><th class="p-3 text-right">Nominal</th></tr></thead><tbody class="divide-y divide-slate-100"><tr><td class="p-3">24 Okt 2026</td><td class="p-3">Subsidi kuota internet</td><td class="p-3"><span class="text-emerald bg-emerald-light px-2 py-1 rounded-full text-xs">Berhasil</span></td><td class="p-3 text-right font-semibold">Rp150.000</td></tr><tr><td class="p-3">18 Okt 2026</td><td class="p-3">Lisensi sumber belajar digital</td><td class="p-3"><span class="text-emerald bg-emerald-light px-2 py-1 rounded-full text-xs">Berhasil</span></td><td class="p-3 text-right font-semibold">Rp250.000</td></tr></tbody></table></div></section>
+            </div>
+
+            <!-- PAGE: KHD -->
+            <div id="page-KHD" class="page-view hidden space-y-6">
+                <div><p class="text-xs uppercase tracking-wider font-bold text-emerald mb-1">Hygiene Layer</p><h2 class="text-2xl font-extrabold text-navy-800">Kebutuhan Hidup Digital (KHD)</h2><p class="text-sm text-slate-500 mt-1">Dukungan untuk membantu guru mengakses teknologi pembelajaran secara berkelanjutan.</p></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><div class="flex items-center justify-between gap-4"><div><p class="text-sm font-semibold text-slate-500">Alokasi KHD Oktober 2026</p><p class="text-3xl font-extrabold text-navy-800 mt-2">Rp750.000</p></div><span class="bg-emerald-light text-emerald px-3 py-1 rounded-full text-xs font-bold">Aktif</span></div><div class="mt-5"><div class="flex justify-between text-xs text-slate-500 mb-2"><span>Penggunaan alokasi</span><strong>75%</strong></div><div class="w-full bg-slate-100 h-3 rounded-full"><div class="bg-emerald h-3 rounded-full" style="width:75%"></div></div></div><button onclick="openModal('dompetModal')" class="mt-5 bg-navy-800 hover:bg-navy-900 text-white text-sm font-semibold px-4 py-2.5 rounded-xl">Kelola Alokasi</button></div>
+                    <div class="bg-navy-800 p-6 rounded-2xl text-white"><p class="text-xs uppercase tracking-wider text-slate-300">Sisa Dukungan</p><p class="text-3xl font-extrabold mt-2">Rp187.500</p><p class="text-xs text-slate-300 mt-3">Gunakan sesuai kategori kebutuhan digital yang disetujui.</p></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <article class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="w-11 h-11 rounded-xl bg-emerald-light text-emerald flex items-center justify-center mb-4"><span class="text-xl">⌁</span></div><h3 class="font-bold text-navy-800">Konektivitas Internet</h3><p class="text-sm text-slate-500 mt-2">Paket data untuk mengakses LMS, kelas daring, dan referensi pembelajaran.</p><p class="font-bold text-emerald mt-4">Alokasi: Rp300.000</p><button onclick="showToast('Kategori konektivitas dipilih.')" class="mt-4 text-sm font-semibold text-emerald underline">Lihat ketentuan</button></article>
+                    <article class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="w-11 h-11 rounded-xl bg-emerald-light text-emerald flex items-center justify-center mb-4"><span class="text-xl">▤</span></div><h3 class="font-bold text-navy-800">Software & Sumber Belajar</h3><p class="text-sm text-slate-500 mt-2">Akses aplikasi pengajaran, modul digital, jurnal, dan materi pembelajaran.</p><p class="font-bold text-emerald mt-4">Alokasi: Rp250.000</p><button onclick="showToast('Kategori software dan sumber belajar dipilih.')" class="mt-4 text-sm font-semibold text-emerald underline">Lihat ketentuan</button></article>
+                    <article class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="w-11 h-11 rounded-xl bg-gold-light text-gold-dark flex items-center justify-center mb-4"><span class="text-xl">⌘</span></div><h3 class="font-bold text-navy-800">Perangkat Pembelajaran</h3><p class="text-sm text-slate-500 mt-2">Bantuan perangkat atau aksesori untuk mendukung proses belajar-mengajar.</p><p class="font-bold text-gold-dark mt-4">Alokasi: Rp200.000</p><button onclick="showToast('Kategori perangkat pembelajaran dipilih.')" class="mt-4 text-sm font-semibold text-gold-dark underline">Lihat ketentuan</button></article>
+                </div>
+            </div>
+
+            <!-- PAGE: DIGI-INCENTIVE -->
+            <div id="page-Digi-Incentive" class="page-view hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3"><div><p class="text-xs uppercase tracking-wider font-bold text-gold-dark mb-1">Motivator Layer</p><h2 class="text-2xl font-extrabold text-navy-800">Digi-Incentive Profesional</h2><p class="text-sm text-slate-500 mt-1">Penghargaan berdasarkan proses evaluasi portofolio dan kinerja pembelajaran.</p></div><button onclick="openModal('incentiveModal')" class="bg-emerald text-white px-4 py-2.5 rounded-xl text-sm font-semibold">Klaim Insentif</button></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5"><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs uppercase text-slate-500 font-semibold">Skor Evaluasi</p><p class="text-3xl font-extrabold text-navy-800 mt-2">88<span class="text-base text-slate-400">/100</span></p><div class="bg-slate-100 h-2 rounded-full mt-4"><div class="bg-gold h-2 rounded-full" style="width:88%"></div></div></div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs uppercase text-slate-500 font-semibold">Insentif Terkumpul</p><p class="text-3xl font-extrabold text-emerald mt-2">Rp350.000</p><p class="text-xs text-slate-500 mt-2">Nilai simulasi prototipe</p></div><div class="bg-navy-800 p-5 rounded-2xl text-white"><p class="text-xs uppercase text-slate-300 font-semibold">Tier Kinerja</p><p class="text-2xl font-extrabold mt-2">Guru Inovatif</p><p class="text-xs text-slate-300 mt-2">Evaluasi akhir tetap memerlukan validasi asesor.</p></div></div>
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><h3 class="font-bold text-navy-800 mb-4">Komponen Penilaian</h3><div class="space-y-4"><div><div class="flex justify-between text-sm mb-1"><span>Inovasi bahan ajar digital</span><strong>30/30</strong></div><div class="bg-slate-100 h-2 rounded-full"><div class="bg-emerald h-2 rounded-full" style="width:100%"></div></div></div><div><div class="flex justify-between text-sm mb-1"><span>Aktivitas pelatihan profesional</span><strong>24/30</strong></div><div class="bg-slate-100 h-2 rounded-full"><div class="bg-emerald h-2 rounded-full" style="width:80%"></div></div></div><div><div class="flex justify-between text-sm mb-1"><span>Evaluasi dan refleksi pembelajaran</span><strong>20/25</strong></div><div class="bg-slate-100 h-2 rounded-full"><div class="bg-gold h-2 rounded-full" style="width:80%"></div></div></div><div><div class="flex justify-between text-sm mb-1"><span>Kolaborasi dan umpan balik</span><strong>14/15</strong></div><div class="bg-slate-100 h-2 rounded-full"><div class="bg-emerald h-2 rounded-full" style="width:93%"></div></div></div></div><p class="text-xs text-slate-500 mt-5">Seluruh skor dan nominal pada layar ini merupakan data ilustratif untuk demonstrasi prototipe.</p></section>
+            </div>
+
+            <!-- PAGE: PORTOFOLIO DIGITAL -->
+            <div id="page-Portofolio-Digital" class="page-view hidden space-y-6">
+                <div><p class="text-xs uppercase tracking-wider font-bold text-emerald mb-1">Dokumentasi Profesional</p><h2 class="text-2xl font-extrabold text-navy-800">Portofolio Digital</h2><p class="text-sm text-slate-500 mt-1">Unggah dan kelola bukti pengembangan pembelajaran Anda.</p></div>
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><h3 class="font-bold text-navy-800">Tambah portofolio</h3><p class="text-sm text-slate-500 mt-1 mb-4">Pilih dokumen atau media sebagai contoh portofolio. Unggahan ini hanya disimulasikan di browser.</p><div class="flex flex-col sm:flex-row gap-3"><input id="portfolioFile" type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.jpg,.jpeg,.png,.mp4" class="block w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-light file:px-4 file:py-2 file:font-semibold file:text-emerald"><button onclick="uploadPortfolio()" class="bg-emerald hover:bg-emerald-hover text-white px-4 py-2.5 rounded-xl font-semibold text-sm">Tambah Dokumen</button></div></section>
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center mb-4"><h3 class="font-bold text-navy-800">Dokumen Portofolio</h3><span id="portfolio-count" class="bg-emerald-light text-emerald px-2.5 py-1 rounded-full text-xs font-bold">8 dokumen</span></div><div id="portfolio-list" class="space-y-3"><div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200"><div><p class="font-semibold text-sm text-navy-800">Modul Pembelajaran Interaktif.pdf</p><p class="text-xs text-slate-500 mt-1">Diunggah 20 Okt 2026 • Materi ajar</p></div><span class="text-xs font-semibold text-emerald bg-emerald-light px-2 py-1 rounded-full">Terverifikasi</span></div><div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200"><div><p class="font-semibold text-sm text-navy-800">Video Praktik Mengajar.mp4</p><p class="text-xs text-slate-500 mt-1">Diunggah 16 Okt 2026 • Video pembelajaran</p></div><span class="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-1 rounded-full">Menunggu tinjauan</span></div><div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200"><div><p class="font-semibold text-sm text-navy-800">Refleksi Pembelajaran.docx</p><p class="text-xs text-slate-500 mt-1">Diunggah 12 Okt 2026 • Refleksi</p></div><span class="text-xs font-semibold text-emerald bg-emerald-light px-2 py-1 rounded-full">Terverifikasi</span></div></div></section>
+            </div>
+
+            <!-- PAGE: LITERASI DIGITAL -->
+            <div id="page-Literasi-Digital" class="page-view hidden space-y-6">
+                <div><p class="text-xs uppercase tracking-wider font-bold text-emerald mb-1">Pengembangan Kompetensi</p><h2 class="text-2xl font-extrabold text-navy-800">Literasi Digital</h2><p class="text-sm text-slate-500 mt-1">Pelajari keterampilan digital untuk mendukung pembelajaran yang efektif dan bertanggung jawab.</p></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5"><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs text-slate-500">Progres Pelatihan</p><p class="text-3xl font-extrabold text-navy-800 mt-2"><span id="module-progress">4</span>/5</p><div class="bg-slate-100 h-2 rounded-full mt-4"><div id="module-progress-bar" class="bg-emerald h-2 rounded-full" style="width:80%"></div></div></div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs text-slate-500">Sertifikat</p><p class="text-3xl font-extrabold text-emerald mt-2">4</p><p class="text-xs text-slate-500 mt-2">Modul selesai pada simulasi</p></div><div class="bg-navy-800 p-5 rounded-2xl text-white"><p class="text-xs text-slate-300">Rekomendasi</p><p class="text-xl font-bold mt-2">Pembelajaran Interaktif</p><p class="text-xs text-slate-300 mt-2">Selesaikan modul berikutnya untuk melengkapi jalur pembelajaran.</p></div></div>
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><h3 class="font-bold text-navy-800 mb-4">Modul Pelatihan</h3><div class="space-y-3"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-slate-200 rounded-xl"><div><p class="font-semibold text-navy-800">1. Dasar Literasi Digital</p><p class="text-xs text-slate-500 mt-1">Keamanan digital, informasi, dan etika daring • 30 menit</p></div><span class="text-xs font-bold text-emerald bg-emerald-light px-3 py-1 rounded-full">Selesai</span></div><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-slate-200 rounded-xl"><div><p class="font-semibold text-navy-800">2. Penggunaan LMS</p><p class="text-xs text-slate-500 mt-1">Mengelola materi, tugas, dan evaluasi • 45 menit</p></div><span class="text-xs font-bold text-emerald bg-emerald-light px-3 py-1 rounded-full">Selesai</span></div><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-slate-200 rounded-xl"><div><p class="font-semibold text-navy-800">3. Membuat Materi Ajar Digital</p><p class="text-xs text-slate-500 mt-1">Menyusun presentasi dan bahan ajar • 45 menit</p></div><span class="text-xs font-bold text-emerald bg-emerald-light px-3 py-1 rounded-full">Selesai</span></div><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-slate-200 rounded-xl"><div><p class="font-semibold text-navy-800">4. Pembelajaran Interaktif</p><p class="text-xs text-slate-500 mt-1">Aktivitas belajar yang melibatkan peserta didik • 60 menit</p></div><span class="text-xs font-bold text-emerald bg-emerald-light px-3 py-1 rounded-full">Selesai</span></div><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-amber-200 bg-amber-50/40 rounded-xl"><div><p class="font-semibold text-navy-800">5. Evaluasi Pembelajaran Berbasis Data</p><p class="text-xs text-slate-500 mt-1">Menggunakan hasil evaluasi untuk memperbaiki pembelajaran • 40 menit</p></div><button id="completeModuleBtn" onclick="completeModule()" class="bg-emerald text-white px-4 py-2 rounded-lg text-xs font-semibold">Selesaikan Modul</button></div></div></section>
+            </div>
+
+            <!-- PAGE: RIWAYAT TRANSAKSI -->
+            <div id="page-Riwayat-Transaksi" class="page-view hidden space-y-6">
+                <div><p class="text-xs uppercase tracking-wider font-bold text-emerald mb-1">Audit dan Akuntabilitas</p><h2 class="text-2xl font-extrabold text-navy-800">Riwayat Transaksi</h2><p class="text-sm text-slate-500 mt-1">Lihat catatan penyaluran dukungan dan insentif dalam prototipe.</p></div>
+                <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between mb-5"><h3 class="font-bold text-navy-800">Daftar transaksi</h3><input id="transactionSearch" oninput="filterTransactions()" type="search" placeholder="Cari transaksi..." class="border border-slate-200 rounded-xl px-4 py-2 text-sm w-full md:w-72 focus:outline-none focus:ring-2 focus:ring-emerald/30"></div><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="text-xs uppercase text-slate-500 bg-slate-50"><tr><th class="p-3">ID Transaksi</th><th class="p-3">Tanggal</th><th class="p-3">Jenis</th><th class="p-3">Status</th><th class="p-3 text-right">Nominal</th></tr></thead><tbody id="transactionRows" class="divide-y divide-slate-100"><tr><td class="p-3 font-mono text-xs">TRX-2026-0928</td><td class="p-3">24 Okt 2026</td><td class="p-3">Subsidi kuota internet</td><td class="p-3"><span class="text-emerald bg-emerald-light px-2 py-1 rounded-full text-xs">Berhasil</span></td><td class="p-3 text-right font-semibold">Rp150.000</td></tr><tr><td class="p-3 font-mono text-xs">TRX-2026-0881</td><td class="p-3">18 Okt 2026</td><td class="p-3">Insentif evaluasi pembelajaran</td><td class="p-3"><span class="text-emerald bg-emerald-light px-2 py-1 rounded-full text-xs">Berhasil</span></td><td class="p-3 text-right font-semibold">Rp350.000</td></tr><tr><td class="p-3 font-mono text-xs">TRX-2026-0813</td><td class="p-3">10 Okt 2026</td><td class="p-3">Lisensi sumber belajar</td><td class="p-3"><span class="text-emerald bg-emerald-light px-2 py-1 rounded-full text-xs">Berhasil</span></td><td class="p-3 text-right font-semibold">Rp250.000</td></tr><tr><td class="p-3 font-mono text-xs">TRX-2026-0722</td><td class="p-3">02 Okt 2026</td><td class="p-3">Alokasi KHD bulanan</td><td class="p-3"><span class="text-emerald bg-emerald-light px-2 py-1 rounded-full text-xs">Berhasil</span></td><td class="p-3 text-right font-semibold">Rp750.000</td></tr></tbody></table></div><p class="text-xs text-slate-400 mt-4">Data pada tabel ini hanya untuk ilustrasi prototipe, bukan catatan transaksi riil.</p></section>
+            </div>
+
+            <!-- PAGE: PENGATURAN -->
+            <div id="page-Pengaturan" class="page-view hidden space-y-6">
+                <div><p class="text-xs uppercase tracking-wider font-bold text-emerald mb-1">Preferensi Akun</p><h2 class="text-2xl font-extrabold text-navy-800">Pengaturan</h2><p class="text-sm text-slate-500 mt-1">Kelola informasi profil dan preferensi notifikasi.</p></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5"><section class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><h3 class="font-bold text-navy-800 mb-5">Profil Pendidik</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><label class="text-sm text-slate-600">Nama lengkap<input id="settingName" value="Ibu Sari Wulandari" class="mt-1 block w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm"></label><label class="text-sm text-slate-600">Status kepegawaian<input value="Guru Non-ASN" readonly class="mt-1 block w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-slate-50"></label><label class="text-sm text-slate-600 md:col-span-2">Instansi pendidikan<input id="settingSchool" value="SMP Negeri 2 Merdeka" class="mt-1 block w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm"></label><label class="text-sm text-slate-600 md:col-span-2">Email<input id="settingEmail" type="email" value="sari.wulandari@example.sch.id" class="mt-1 block w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm"></label></div><button onclick="saveSettings()" class="mt-5 bg-emerald hover:bg-emerald-hover text-white px-4 py-2.5 rounded-xl text-sm font-semibold">Simpan Perubahan</button></section><section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><h3 class="font-bold text-navy-800 mb-4">Preferensi Notifikasi</h3><label class="flex items-center justify-between gap-3 py-3 border-b border-slate-100 text-sm"><span>Email transaksi</span><input type="checkbox" checked class="accent-emerald w-4 h-4"></label><label class="flex items-center justify-between gap-3 py-3 border-b border-slate-100 text-sm"><span>Pengingat pelatihan</span><input type="checkbox" checked class="accent-emerald w-4 h-4"></label><label class="flex items-center justify-between gap-3 py-3 text-sm"><span>Berita program</span><input type="checkbox" class="accent-emerald w-4 h-4"></label><p class="text-xs text-slate-400 mt-4">Pengaturan notifikasi tersimpan sebagai simulasi di halaman ini.</p></section></div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: DOMPET DIGITAL / KHD DETAIL -->
+    <div id="dompetModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 transform transition-all">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-emerald/10 text-emerald rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-navy-800">Rincian Dompet KHD</h3>
+                        <p class="text-xs text-slate-500">Saldo Kebutuhan Hidup Digital Aktif</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('dompetModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="py-4 space-y-3">
+                <div class="bg-slate-50 p-3.5 rounded-xl flex justify-between items-center text-xs">
+                    <span class="text-slate-600 font-medium">Paket Kuota Kemendikbudristek (150GB)</span>
+                    <span class="font-bold text-emerald">Rp300.000</span>
+                </div>
+                <div class="bg-slate-50 p-3.5 rounded-xl flex justify-between items-center text-xs">
+                    <span class="text-slate-600 font-medium">Lisensi Software LMS & Canva Pro</span>
+                    <span class="font-bold text-emerald">Rp250.000</span>
+                </div>
+                <div class="bg-slate-50 p-3.5 rounded-xl flex justify-between items-center text-xs">
+                    <span class="text-slate-600 font-medium">Voucher Perangkat Laptop (Dana Cadangan)</span>
+                    <span class="font-bold text-emerald">Rp200.000</span>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div class="text-xs">
+                    <span class="text-slate-400">Total Alokasi Bulan Ini:</span>
+                    <p class="text-base font-bold text-navy-800">Rp750.000</p>
+                </div>
+                <button onclick="showToast('Permintaan TOP-UP Kuota Dikirim.'); closeModal('dompetModal');" class="bg-emerald text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-emerald-hover transition-all">
+                    Top-Up / Tambah Kuota
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: DIGI-INCENTIVE DETAIL -->
+    <div id="incentiveModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 transform transition-all">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-gold/20 text-gold-dark rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-navy-800">Rincian Digi-Incentive</h3>
+                        <p class="text-xs text-slate-500">Perhitungan Skor Kinerja & Bonus Guru</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('incentiveModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="py-4 space-y-3">
+                <div class="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
+                    <div class="flex justify-between font-bold text-navy-800">
+                        <span>1. Evaluasi Perencana Mengajar (RPP/Modul Ajar)</span>
+                        <span>40 Poin</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Dinilai berdasarkan ketercapaian standar kurikulum nasional.</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
+                    <div class="flex justify-between font-bold text-navy-800">
+                        <span>2. Kehadiran & Aktivitas Belajar Mengajar Digital</span>
+                        <span>28 Poin</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Presensi digital terverifikasi GPS sekolah & LMS.</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
+                    <div class="flex justify-between font-bold text-navy-800">
+                        <span>3. Penyelesaian Modul Literasi Digital</span>
+                        <span>20 Poin</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500">4 dari 5 modul pelatihan selesai diselesaikan.</p>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-slate-400">Total Akumulasi Insentif:</span>
+                    <p class="text-base font-bold text-emerald">Rp350.000</p>
+                </div>
+                <button onclick="showToast('Insentif Rp350.000 Berhasil Ditarik ke Rekening.'); closeModal('incentiveModal');" class="bg-emerald text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-emerald-hover transition-all">
+                    Cairkan Insentif
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & INTERACTION SCRIPTS -->
+    <script>
+        // Modal Handlers
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Toast Notification Function
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = message;
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 3000);
+        }
+
+        // Navigation: show the page connected to the selected sidebar menu.
+        function setActiveNav(btn, navTitle) {
+            const pageMap = {
+                'Dashboard': 'page-Dashboard',
+                'Dompet Digital': 'page-Dompet-Digital',
+                'Kebutuhan Hidup Digital': 'page-KHD',
+                'Digi-Incentive': 'page-Digi-Incentive',
+                'Portofolio Digital': 'page-Portofolio-Digital',
+                'Literasi Digital': 'page-Literasi-Digital',
+                'Riwayat Transaksi': 'page-Riwayat-Transaksi',
+                'Pengaturan': 'page-Pengaturan'
+            };
+            const targetId = pageMap[navTitle];
+            const targetPage = targetId ? document.getElementById(targetId) : null;
+            if (!targetPage) {
+                showToast('Halaman belum tersedia: ' + navTitle);
+                return;
+            }
+            document.querySelectorAll('.page-view').forEach(page => page.classList.add('hidden'));
+            targetPage.classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('active', 'bg-navy-700', 'border-l-4', 'border-emerald', 'text-white');
+                el.classList.add('text-slate-300');
+                const icon = el.querySelector('svg');
+                if (icon) icon.classList.add('text-slate-400');
+                if (icon && el.dataset.nav === navTitle) icon.classList.remove('text-slate-400');
+            });
+            const activeButton = btn || document.querySelector('.nav-btn[data-nav="' + navTitle + '"]');
+            if (activeButton) {
+                activeButton.classList.add('active', 'bg-navy-700', 'border-l-4', 'border-emerald', 'text-white');
+                activeButton.classList.remove('text-slate-300');
+                const icon = activeButton.querySelector('svg');
+                if (icon) icon.classList.remove('text-slate-400');
+            }
+            const contentArea = document.querySelector('.flex-1.flex.flex-col.h-screen');
+            if (contentArea) contentArea.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Upload is intentionally simulated: this static prototype does not send files to a server.
+        function uploadPortfolio() {
+            const input = document.getElementById('portfolioFile');
+            if (!input || !input.files || !input.files.length) {
+                showToast('Pilih dokumen terlebih dahulu.');
+                return;
+            }
+            const file = input.files[0];
+            const list = document.getElementById('portfolio-list');
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200';
+            const left = document.createElement('div');
+            const title = document.createElement('p');
+            title.className = 'font-semibold text-sm text-navy-800 break-all';
+            title.textContent = file.name;
+            const meta = document.createElement('p');
+            meta.className = 'text-xs text-slate-500 mt-1';
+            meta.textContent = 'Baru ditambahkan • Menunggu verifikasi';
+            left.append(title, meta);
+            const badge = document.createElement('span');
+            badge.className = 'text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-1 rounded-full whitespace-nowrap';
+            badge.textContent = 'Menunggu tinjauan';
+            row.append(left, badge);
+            list.prepend(row);
+            const count = document.getElementById('portfolio-count');
+            if (count) {
+                const match = count.textContent.match(/\d+/);
+                count.textContent = (match ? Number(match[0]) + 1 : 1) + ' dokumen';
+            }
+            input.value = '';
+            showToast('Dokumen ditambahkan ke prototipe. Belum dikirim ke server.');
+        }
+
+        function completeModule() {
+            const button = document.getElementById('completeModuleBtn');
+            if (!button || button.dataset.completed === 'true') {
+                showToast('Modul ini sudah ditandai selesai.');
+                return;
+            }
+            button.dataset.completed = 'true';
+            button.textContent = 'Selesai';
+            button.disabled = true;
+            button.classList.remove('bg-emerald');
+            button.classList.add('bg-slate-400', 'cursor-not-allowed');
+            const progress = document.getElementById('module-progress');
+            const bar = document.getElementById('module-progress-bar');
+            if (progress) progress.textContent = '5';
+            if (bar) bar.style.width = '100%';
+            showToast('Modul ditandai selesai pada prototipe.');
+        }
+
+        function filterTransactions() {
+            const query = (document.getElementById('transactionSearch')?.value || '').toLowerCase();
+            document.querySelectorAll('#transactionRows tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+            });
+        }
+
+        function saveSettings() {
+            const name = document.getElementById('settingName')?.value.trim();
+            const school = document.getElementById('settingSchool')?.value.trim();
+            if (!name || !school) {
+                showToast('Nama dan instansi harus diisi.');
+                return;
+            }
+            const profileName = document.querySelector('header .font-bold.text-xs.text-navy-800');
+            const schoolName = profileName?.closest('.text-left')?.querySelector('p');
+            if (profileName) profileName.textContent = name;
+            if (schoolName) schoolName.textContent = school;
+            showToast('Perubahan profil disimpan pada prototipe.');
+        }
+
+        // Hexahelix Node Interactive Update
+        function updateHexaInfo(title, desc) {
+            document.getElementById('hexa-title').innerText = 'Hexahelix Node: ' + title;
+            document.getElementById('hexa-desc').innerText = desc;
+            showToast('Fokus Ekosistem: ' + title);
+        }
+
+        // Render Professional Growth Line Chart using Chart.js
+        window.addEventListener('load', function () {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            // Emerald Gradient Fill
+            const emeraldGradient = ctx.createLinearGradient(0, 0, 0, 200);
+            emeraldGradient.addColorStop(0, 'rgba(22, 134, 106, 0.35)');
+            emeraldGradient.addColorStop(1, 'rgba(22, 134, 106, 0.0)');
+
+            // Gold Gradient Fill
+            const goldGradient = ctx.createLinearGradient(0, 0, 0, 200);
+            goldGradient.addColorStop(0, 'rgba(229, 184, 92, 0.30)');
+            goldGradient.addColorStop(1, 'rgba(229, 184, 92, 0.0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt 2026'],
+                    datasets: [
+                        {
+                            label: 'Skor Kinerja (%)',
+                            data: [65, 70, 78, 82, 85, 88],
+                            borderColor: '#16866A',
+                            backgroundColor: emeraldGradient,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#16866A',
+                            pointRadius: 4
+                        },
+                        {
+                            label: 'Insentif Terakumulasi (x10k Rp)',
+                            data: [15, 20, 22, 28, 30, 35],
+                            borderColor: '#E5B85C',
+                            backgroundColor: goldGradient,
+                            borderWidth: 2,
+                            borderDash: [4, 4],
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#E5B85C',
+                            pointRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                font: { family: 'Inter', size: 10 },
+                                usePointStyle: true,
+                                boxWidth: 6
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#15345B',
+                            titleFont: { family: 'Inter', size: 11, weight: 'bold' },
+                            bodyFont: { family: 'Inter', size: 10 },
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter', size: 10 }, color: '#64748B' }
+                        },
+                        y: {
+                            grid: { color: '#F1F5F9' },
+                            ticks: { font: { family: 'Inter', size: 10 }, color: '#64748B' },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
